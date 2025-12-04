@@ -159,46 +159,66 @@ try {
             exit;
         }
         
-        // Histórico de leituras
-        elseif ($acao === 'historico') {
-            $limite = $_GET['limite'] ?? 50;
-            $cond_id = $_GET['condominio_id'] ?? '';
-            $res_id = $_GET['residencia_id'] ?? '';
-            
-            $sql = "SELECT l.id_leitura, l.data_coleta, l.valor_kwh, l.observacao,
-                           c.nome_condominio, r.numero_residencia,
-                           u.nome as nome_leitor
-                    FROM leitura l
-                    INNER JOIN residencia r ON l.id_residencia = r.id_residencia
-                    INNER JOIN condominio c ON r.id_condominio = c.id_condominio
-                    INNER JOIN usuario u ON l.id_usuario = u.id_usuario
-                    WHERE c.id_administrador = ?";
-            
-            $params = [$idAdministrador];
-            
-            if (!empty($cond_id)) {
-                $sql .= " AND r.id_condominio = ?";
-                $params[] = $cond_id;
-            }
-            
-            if (!empty($res_id)) {
-                $sql .= " AND l.id_residencia = ?";
-                $params[] = $res_id;
-            }
-            
-            $sql .= " ORDER BY l.data_coleta DESC LIMIT ?";
-            $params[] = (int)$limite;
-            
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-            
-            ob_clean();
-            echo json_encode([
-                'success' => true, 
-                'historico' => $stmt->fetchAll(PDO::FETCH_ASSOC)
-            ]);
-            exit;
-        }
+       // Histórico de leituras
+elseif ($acao === 'historico') {
+    $limite = isset($_GET['limite']) ? (int)$_GET['limite'] : 50; // CONVERSÃO PARA INT
+    $cond_id = isset($_GET['condominio_id']) ? $_GET['condominio_id'] : '';
+    $res_id = isset($_GET['residencia_id']) ? $_GET['residencia_id'] : '';
+    
+    $sql = "SELECT l.id_leitura, l.data_coleta, l.valor_kwh, l.observacao,
+                   c.nome_condominio, r.numero_residencia,
+                   u.nome as nome_leitor
+            FROM leitura l
+            INNER JOIN residencia r ON l.id_residencia = r.id_residencia
+            INNER JOIN condominio c ON r.id_condominio = c.id_condominio
+            INNER JOIN usuario u ON l.id_usuario = u.id_usuario
+            WHERE c.id_administrador = ?";
+    
+    $params = [$idAdministrador];
+    
+    if (!empty($cond_id)) {
+        $sql .= " AND r.id_condominio = ?";
+        $params[] = $cond_id;
+    }
+    
+    if (!empty($res_id)) {
+        $sql .= " AND l.id_residencia = ?";
+        $params[] = $res_id;
+    }
+    
+    $sql .= " ORDER BY l.data_coleta DESC LIMIT " . $limite; 
+    
+    
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        
+        $historico = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        ob_clean();
+        echo json_encode([
+            'success' => true, 
+            'historico' => $historico,
+            'total_registros' => count($historico),
+            'debug' => [
+                'limite' => $limite,
+                'condominio_filtrado' => !empty($cond_id),
+                'unidade_filtrada' => !empty($res_id)
+            ]
+        ]);
+        exit;
+        
+    } catch (PDOException $e) {
+        ob_clean();
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Erro na query: ' . $e->getMessage(),
+            'sql' => $sql,
+            'params' => $params
+        ]);
+        exit;
+    }
+}   
         
         // Estatísticas para dashboard
         elseif ($acao === 'estatisticas') {
