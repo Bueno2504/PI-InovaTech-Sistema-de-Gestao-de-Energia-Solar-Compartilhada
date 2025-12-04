@@ -1,2 +1,3 @@
-# PI-Plataforma-de-Compartilhamento-de-Energia-Solar
-Sistema web focado em condomínios para gestão de consumo, geração e distribuição de créditos de energia solar. Permite cadastro de usuários e unidades, cálculo automático de créditos, dashboards interativos, promovendo economia, sustentabilidade e eficiência energética.
+# - InovaTech - Sistema de Gestão de Energia Solar Compartilhada
+
+É uma plataforma web desenvolvida para gerenciar sistemas de energia solar compartilhada em condomínios residenciais. O sistema permite que administradores e leitores controlem a geração, consumo e distribuição de energia solar entre as unidades condominiais, oferecendo dashboards interativos com métricas em tempo real, relatórios financeiros, projeções de economia e cálculo automático da distribuição de energia. Desenvolvido com HTML5, CSS3, JavaScript, PHP e MySQL, o projeto utiliza arquitetura MVC e possui sistema de autenticação com diferentes perfis de acesso, contribuindo para uma gestão eficiente e transparente de energia renovável em condomínios.
